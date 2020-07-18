@@ -24,10 +24,9 @@ deployed to MELPA Stable.
 M-x package-install [RET] zetz-mode [RET]
 #+END_SRC
 
-
 *** Configuration
 
-Right now `zetz-mode` doesn't take a lot of configuration (i.e.
+Right now ~zetz-mode~ doesn't take a lot of configuration (i.e.
 it's too simple to need any).
 
 #+BEGIN_SRC elisp
