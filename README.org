@@ -27,9 +27,9 @@ This package can be obtain from
 [[http://stable.melpa.org/#/zetz-mode][MELPA Stable]]. The ~master~
 branch is continuously deployed to ~MELPA~, and released versions are
 deployed to ~MELPA Stable~.
-#+BEGIN_SRC
-M-x package-install [RET] zetz-mode [RET]
-#+END_SRC
+
+*M-x* ~package-install~ *RET* ~zetz-mode~ *RET*
+
 Right now ~zetz-mode~ doesn't take a lot of configuration (i.e.
 it's too simple to need any).
 
