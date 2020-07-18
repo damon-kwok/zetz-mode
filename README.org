@@ -9,26 +9,42 @@
 [[https://melpa.org/#/zetz-mode][file:https://melpa.org/packages/zetz-mode-badge.svg]]
 [[https://stable.melpa.org/#/zetz-mode][file:https://stable.melpa.org/packages/zetz-mode-badge.svg]]
 
-An Emacs mode that provides ~syntax highlighting~ (font-lock), ~indentation~,
-~format~ and ~code jump~ for the [[https://github.com/zetzit/zz/blob/master/README.md][ZetZ]] programming language.
+An Emacs major mode for the [[https://github.com/zetzit/zz/blob/master/README.md][ZetZ]] programming language.
+
+*** DOING Features
+- [X] Syntax highlighting (font-lock)
+- [X] Indentation
+- [ ] Build command integration
+- [ ] ~Keywords~ and ~Methods name~ autocomplete (using ~company-mode~)
+- [ ] Auto format on save
+- [ ] Code jump (using ~ctags~ and ~imenu~)
 
 *** Installation
 
+- MELPA
 This package can be obtain from
 [[http://melpa.org/#/zetz-mode][MELPA]] or
 [[http://stable.melpa.org/#/zetz-mode][MELPA Stable]]. The `master`
 branch is continuously deployed to MELPA, and released versions are
 deployed to MELPA Stable.
-
 #+BEGIN_SRC
 M-x package-install [RET] zetz-mode [RET]
 #+END_SRC
-
-*** Configuration
-
 Right now ~zetz-mode~ doesn't take a lot of configuration (i.e.
 it's too simple to need any).
 
 #+BEGIN_SRC elisp
 (require 'zetz-mode)
+#+END_SRC
+
+- [[https://github.com/raxod502/straight.el][Straight]]
+
+#+BEGIN_SRC elisp
+(use-package zetz-mode
+  :straight (zetz-mode
+             :type git
+             :host github
+             :repo "damon-kwok/zetz-mode"
+             :files ("tokens" "zetz-mode.el"))
+  :mode ("\\.zz\\'" . zetz-mode))
 #+END_SRC
