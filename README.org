@@ -10,7 +10,7 @@
 [[https://stable.melpa.org/#/zetz-mode][file:https://stable.melpa.org/packages/zetz-mode-badge.svg]]
 
 An Emacs mode that provides ~syntax highlighting~ (font-lock), ~indentation~,
-~format~ and ~code jump~ for the [[https://github.com/zetzit/zz][ZetZ]] programming language.
+~format~ and ~code jump~ for the [[https://github.com/zetzit/zz/blob/master/README.md][ZetZ]] programming language.
 
 *** Installation
 
