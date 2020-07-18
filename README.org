@@ -1,0 +1,38 @@
+#+TITLE:     ZetZ-mode
+#+AUTHOR:    damon-kwok
+#+EMAIL:     damon-kwok@outlook.com
+#+DATE:      2020-07-18
+#+OPTIONS: toc:nil creator:nil author:nil email:nil timestamp:nil html-postamble:nil
+#+TODO: TODO DOING DONE
+
+[[https://github.com/damon-kwok/zetz-mode/blob/master/COPYING][https://img.shields.io/github/license/damon-kwok/zetz-mode?logo=gnu&.svg]]
+[[https://melpa.org/#/zetz-mode][file:https://melpa.org/packages/zetz-mode-badge.svg]]
+[[https://stable.melpa.org/#/zetz-mode][file:https://stable.melpa.org/packages/zetz-mode-badge.svg]]
+
+An Emacs mode that provides `syntax highlighting` (font-lock), `indentation`,
+`format` and `code jump` for the [ZetZ](https://github.com/zetzit/zz) programming
+language.
+
+*** Installation
+
+This package can be obtain from
+[[http://melpa.org/#/zetz-mode][MELPA]] or
+[[http://stable.melpa.org/#/zetz-mode][MELPA Stable]]. The `master`
+branch is continuously deployed to MELPA, and released versions are
+deployed to MELPA Stable.
+
+#+BEGIN_SRC
+M-x package-install [RET] zetz-mode [RET]
+#+END_SRC
+
+
+*** Configuration
+
+Right now `zetz-mode` doesn't take a lot of configuration (i.e.
+it's too simple to need any).
+
+#+BEGIN_SRC elisp
+(require 'zetz-mode)
+#+END_SRC
+
+```
