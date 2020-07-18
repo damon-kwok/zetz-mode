@@ -9,9 +9,8 @@
 [[https://melpa.org/#/zetz-mode][file:https://melpa.org/packages/zetz-mode-badge.svg]]
 [[https://stable.melpa.org/#/zetz-mode][file:https://stable.melpa.org/packages/zetz-mode-badge.svg]]
 
-An Emacs mode that provides `syntax highlighting` (font-lock), `indentation`,
-`format` and `code jump` for the [ZetZ](https://github.com/zetzit/zz) programming
-language.
+An Emacs mode that provides ~syntax highlighting~ (font-lock), ~indentation~,
+~format~ and ~code jump~ for the [[https://github.com/zetzit/zz][ZetZ]] programming language.
 
 *** Installation
 
@@ -34,5 +33,3 @@ it's too simple to need any).
 #+BEGIN_SRC elisp
 (require 'zetz-mode)
 #+END_SRC
-
-```
