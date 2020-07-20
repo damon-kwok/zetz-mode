@@ -191,7 +191,7 @@
      (,zetz-preprocessor-keywords-regexp . font-lock-preprocessor-face)
 
      ;; delimiter: modifier
-     ("\\(->\\|=>\\|\\.>\\|:>\\||\\)" 1 'font-lock-keyword-face)
+     ("\\(->\\|=>\\|\\.>\\|:>\\|::\\||\\)" 1 'font-lock-keyword-face)
 
      ;; delimiter: . , ; separate
      ("\\($?[.,;]+\\)" 1 'font-lock-comment-delimiter-face)
