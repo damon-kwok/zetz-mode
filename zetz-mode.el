@@ -318,4 +318,4 @@
 
 ;;
 (provide 'zetz-mode)
-;; zetz-mode.el ends here
+;;; zetz-mode.el ends here
