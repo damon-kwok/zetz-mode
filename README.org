@@ -14,14 +14,16 @@ An Emacs major mode for the [[https://github.com/zetzit/zz/blob/master/README.md
 *** DOING Features
 - [X] Syntax highlighting (font-lock)
 - [X] Indentation
+- [ ] ~imenu~
+- [ ] Code folding
+- [ ] Code jump (using ~ctags~)
 - [ ] Build command integration
-- [ ] ~Keywords~ and ~Methods name~ autocomplete (using ~company-mode~)
 - [ ] Auto format on save
-- [ ] Code jump (using ~ctags~ and ~imenu~)
+- [ ] ~Keywords~ and ~Methods name~ autocomplete (using ~company-mode~)
 
 *** Installation
 
-- MELPA
+- using MELPA
 This package can be obtain from
 [[http://melpa.org/#/zetz-mode][MELPA]] or
 [[http://stable.melpa.org/#/zetz-mode][MELPA Stable]]. The ~master~
@@ -37,7 +39,7 @@ it's too simple to need any).
 (require 'zetz-mode)
 #+END_SRC
 
-- [[https://github.com/raxod502/straight.el][Straight]]
+- using [[https://github.com/jwiegley/use-package][use-package]] and [[https://github.com/raxod502/straight.el][straight.el]]
 
 #+BEGIN_SRC elisp
 (use-package zetz-mode
