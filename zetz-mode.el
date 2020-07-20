@@ -110,33 +110,20 @@
     map)
   "Keymap for ZetZ major mode")
 
-;; (defvar zetz--indent-cycle-direction 'left)
-
 (defconst zetz-keywords
-  '("let"                               ;
-     "enum" "struct" "fn" "trait"       ;
-     "if" "else" "switch" "case" "while" "for" "do" "goto" "continue" "break" "default" "sizeof"
-     "return")
-  "ZetZ language keywords.")
-
-(defconst zetz-builtin-keywords
-  '("u8" "i8" "u16" "i16" "u32" "i32" "u64" "i64"    ;
-     "isize" "usize" "int" "uint" "f32" "f64" "bool" ;
-     "void" "char" "byte")
+  '("if" "else" "switch" "case" "while" "for" "do" ;
+    "default" "sizeof")
   "ZetZ language keywords.")
 
 (defconst zetz-preprocessor-keywords
   '("using" "export" "pub"              ;
-     "let"                              ;
      "const" "test" "theory"            ;
      "assert" "closure")
   "ZetZ declaration keywords.")
 
 (defconst zetz-declaration-keywords
-  '("let"                                           ;
-     "enum" "struct" "fn" "trait" "symbol"          ;
-     "if" "else" "switch" "case" "while" "for" "do" ;
-     "default" "sizeof")
+  '("let"                               ;
+     "enum" "struct" "fn" "trait" "symbol")
   "ZetZ declaration keywords.")
 
 (defconst zetz-careful-keywords
@@ -147,22 +134,24 @@
      "unsafe")
   "ZetZ language careful keywords.")
 
-(defconst zetz-operator-functions
-                                        ;
-  '("len" "safe" "static_attest" "static_assert" "nullterm")
-  "ZetZ language operators functions.")
+(defconst zetz-builtin-keywords
+  '("u8" "i8" "u16" "i16" "u32" "i32" "u64" "i64"    ;
+     "isize" "usize" "int" "uint" "f32" "f64" "bool" ;
+     "void" "char" "byte")
+  "ZetZ language keywords.")
 
 (defconst zetz-constants                ;
   '("false" "true" "self")
   "Common constants.")
 
-;; create the regex string for each class of keywords
+(defconst zetz-operator-functions       ;
+  '("len" "safe" "static_attest" "static_assert" "nullterm")
+  "ZetZ language operators functions.")
+
+;;; create the regex string for each class of keywords
 
 (defconst zetz-keywords-regexp (regexp-opt zetz-keywords 'words)
   "Regular expression for matching keywords.")
-
-(defconst zetz-builtin-keywords-regexp (regexp-opt zetz-builtin-keywords 'words)
-  "Regular expression for matching builtin type.")
 
 (defconst zetz-declaration-keywords-regexp ;
   (regexp-opt zetz-declaration-keywords 'words)
@@ -176,6 +165,9 @@
   (regexp-opt zetz-careful-keywords 'words)
   "Regular expression for matching careful keywords.")
 
+(defconst zetz-builtin-keywords-regexp (regexp-opt zetz-builtin-keywords 'words)
+  "Regular expression for matching builtin type.")
+
 (defconst zetz-constant-regexp          ;
   (regexp-opt zetz-constants 'words)
   "Regular expression for matching constants.")
@@ -183,10 +175,6 @@
 (defconst zetz-operator-functions-regexp ;
   (regexp-opt zetz-operator-functions 'words)
   "Regular expression for matching operator functions.")
-
-;; (defconst zetz-common-functions-regexp
-;; (regexp-opt zetz-common-functions 'words)
-;; "Regular expression for matching common functions.")
 
 (defconst zetz-font-lock-keywords
   `(
@@ -197,7 +185,9 @@
      (,zetz-careful-keywords-regexp . font-lock-warning-face)
 
      ;; declaration
-     (,zetz-declaration-keywords-regexp . font-lock-keyword-face) ;;font-lock-preprocessor-face
+     (,zetz-declaration-keywords-regexp . font-lock-keyword-face)
+
+     ;; preprocessor
      (,zetz-preprocessor-keywords-regexp . font-lock-preprocessor-face)
 
      ;; delimiter: modifier
@@ -216,21 +206,11 @@
      ;; delimiter: brackets
      ("\\(\\[\\|\\]\\|[(){}]\\)" 1 'font-lock-comment-delimiter-face)
 
-     ;; delimiter: lambda
-     ;; ("\\($?[{}]+\\)" 1 'font-lock-function-name-face)
-
-     ;; common methods
-     ;; (,zetz-common-functions-regexp . font-lock-builtin-face)
-
      ;; operator methods
      (,zetz-operator-functions-regexp . font-lock-builtin-face)
 
      ;; macro
      ("#\\(?:include\\|if\\|ifdef\\|else\\|elif\\|endif\\)" . 'font-lock-builtin-face)
-
-     ;; variable definitions
-     ;; ("\\(?:object\\|let\\|var\\|embed\\|for\\)\\s +\\([^ \t\r\n,:;=)]+\\)" 1
-     ;; 'font-lock-variable-name-face)
 
      ;; method definitions
      ("\\(?:fn\\)\s+\\($?[a-z_][A-Za-z0-9_]*\\)" 1 'font-lock-function-name-face)
@@ -257,9 +237,6 @@
      ;; tuple references
      ("[.]$?[ \t]?\\($?_[1-9]$?[0-9]?*\\)" 1 'font-lock-variable-name-face)
 
-     ;;(,zetz-event-regexp . font-lock-builtin-face)
-     ;;(,zetz-functions-regexp . font-lock-function-name-face)
-
      ;; keywords
      (,zetz-keywords-regexp . font-lock-keyword-face) ;;font-lock-keyword-face
 
@@ -273,29 +250,66 @@
      ("\\([a-z_]+[a-z0-9_']*\\)+" 1 'font-lock-variable-name-face))
   "An alist mapping regexes to font-lock faces.")
 
+(defun zetz-beginning-of-defun
+  (&optional
+    count)
+  "Go to line on which current function starts."
+  (interactive)
+  (let ((orig-level (odin-paren-level)))
+    (while (and (not (odin-line-is-defun))
+             (not (bobp))
+             (> orig-level 0))
+      (setq orig-level (odin-paren-level))
+      (while (>= (odin-paren-level) orig-level)
+        (skip-chars-backward "^{")
+        (backward-char))))
+  (if (odin-line-is-defun)
+    (beginning-of-line)))
+
+(defun zetz-end-of-defun ()
+  "Go to line on which current function ends."
+  (interactive)
+  (let ((orig-level (odin-paren-level)))
+    (when (> orig-level 0)
+      (odin-beginning-of-defun)
+      (end-of-line)
+      (setq orig-level (odin-paren-level))
+      (skip-chars-forward "^}")
+      (while (>= (odin-paren-level) orig-level)
+        (skip-chars-forward "^}")
+        (forward-char)))))
+
 (defalias 'zetz-parent-mode             ;
   (if (fboundp 'prog-mode) 'prog-mode 'fundamental-mode))
 
 ;;;###autoload
 (define-derived-mode zetz-mode zetz-parent-mode
   "ZetZ"
-  "Major mode for editing ZetZ files."
+  "Major mode for editing V files."
   :syntax-table zetz-mode-syntax-table
   (setq bidi-paragraph-direction 'left-to-right)
   (setq-local require-final-newline mode-require-final-newline)
+  (setq-local indent-tabs-mode nil)
+  (setq-local tab-width 4)
+  (setq-local buffer-file-coding-system 'utf-8-unix)
+
   (setq-local parse-sexp-ignore-comments t)
-  (setq-local comment-start "// ")
-  (setq-local comment-start-skip "//+")
+  (setq-local comment-start "/*")
+  (setq-local comment-start "*/")
+  (setq-local comment-start-skip "\\(//+\\|/\\*+\\)\\s *")
+  (setq-local electric-indent-chars (append "{}():;," electric-indent-chars))
+  (setq-local beginning-of-defun-function 'zetz-beginning-of-defun)
+  (setq-local end-of-defun-function 'zetz-end-of-defun)
+  (setq-local indent-line-function 'js-indent-line)
+
   ;; (setq-local font-lock-defaults        ;
   ;; '(zetz-font-lock-keywords ;
   ;; nil nil nil nil         ;
   ;; (font-lock-syntactic-face-function . zetz-mode-syntactic-face-function)))
   (setq-local font-lock-defaults '(zetz-font-lock-keywords))
-  (setq-local indent-line-function 'js-indent-line)
+  (font-lock-fontify-buffer)
+
   ;; (setq-local syntax-propertize-function zetz-syntax-propertize-function)
-  (setq-local indent-tabs-mode nil)
-  (setq-local tab-width 4)
-  (setq-local buffer-file-coding-system 'utf-8-unix)
   ;;
   )
 
