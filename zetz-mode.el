@@ -109,9 +109,8 @@
     map)
   "Keymap for ZetZ major mode.")
 
-(defconst zetz-keywords
-  '("if" "else" "switch" "case" "while" "for" "do" ;
-     "default" "sizeof")
+(defconst zetz-keywords '("if" "else" "switch" "case" "while" "for" "do" ;
+                           "default" "sizeof")
   "ZetZ language keywords.")
 
 (defconst zetz-preprocessor-keywords
@@ -131,7 +130,7 @@
   '("new"                                       ;
      "goto" "continue" "break" "return"         ;
      "mut" "mutable" "unsafe"                   ;
-     "is" "as" "needs"                               ;
+     "is" "as" "needs"                          ;
      "test"                                     ;
      "assert" "assert2" "assert3" "assert4"     ;
      "static_attest" "static_assert" "nullterm" ;
@@ -285,6 +284,177 @@ Optional argument COUNT ."
         (skip-chars-forward "^}")
         (forward-char)))))
 
+(defun zetz-project-root-p (PATH)
+  "Return t if directory `PATH' is the root of the ZetZ project."
+  (setq-local files '("zz.toml" "make.bat" "Makefile" ;
+                       "Dockerfile" ".editorconfig" ".gitignore"))
+  (setq-local foundp nil)
+  (while (and files
+           (not foundp))
+    (let* ((filename (car files))
+            (filepath (concat (file-name-as-directory PATH) filename)))
+      (setq-local files (cdr files))
+      (setq-local foundp (file-exists-p filepath))))
+  foundp)
+
+(defun zetz-project-root
+  (&optional
+    PATH)
+  "Return the root of the ZetZ project.
+Optional argument PATH: project path."
+  (let* ((bufdir (if buffer-file-name   ;
+                   (file-name-directory buffer-file-name) default-directory))
+          (curdir (if PATH (file-name-as-directory PATH) bufdir))
+          (parent (file-name-directory (directory-file-name curdir))))
+    (if (or (not parent)
+          (string= parent curdir)
+          (string= parent "/")
+          (zetz-project-root-p curdir)) ;
+      curdir                            ;
+      (zetz-project-root parent))))
+
+(defun zetz-project-name ()
+  "Return ZetZ project name."
+  (file-name-base (directory-file-name (zetz-project-root))))
+
+(defun zetz-project-file-exists-p (FILENAME)
+  "Return t if file `FILENAME' exists."
+  (file-exists-p (concat (zetz-project-root) FILENAME)))
+
+(defun zetz-run-command (COMMAND &optional PATH)
+  "Return `COMMAND' in the root of the ZetZ project.
+Optional argument PATH: project path."
+  (setq default-directory (if PATH PATH (zetz-project-root PATH)))
+  (compile COMMAND))
+
+(defun zetz-project-build ()
+  "Build project with veronac."
+  (interactive)
+  (if (zetz-project-file-exists-p "Makefile")
+    (zetz-run-command "make")
+    (zetz-run-command "veronac .")))
+
+(defun zetz-project-open ()
+  "Open `zz.toml' file."
+  (interactive)
+  (if (zetz-project-file-exists-p "zz.toml")
+    (find-file (concat (zetz-project-root) "zz.toml"))))
+
+(defun zetz-buffer-dirname ()
+  "Return current buffer directory file name."
+  (directory-file-name (if buffer-file-name (file-name-directory buffer-file-name)
+                         default-directory)))
+
+(defun zetz-project-run ()
+  "Run project."
+  (interactive)
+  (let* ((bin1 (concat (zetz-project-root) "bin/" (zetz-project-name)))
+          (bin2 (concat (zetz-project-root) "/" (zetz-project-name)))
+          (bin3 (concat (zetz-buffer-dirname) "/" (zetz-project-name))))
+    (if (file-exists-p bin1)
+      (zetz-run-command bin1)
+      (if (file-exists-p bin2)
+        (zetz-run-command bin2)
+        (if (file-exists-p bin3)
+          (zetz-run-command bin3))))))
+
+(easy-menu-define zetz-mode-menu zetz-mode-map ;
+  "Menu for ZetZ mode."                        ;
+  '("ZetZ"                                     ;
+     ["Build" zetz-project-build t]            ;
+     ["Run" zetz-project-run t]                ;
+     "---"                                     ;
+     ("Community"                              ;
+       ["Home" (zetz-run-command "xdg-open https://github.com/zetzit/zz") t]
+       ["ZetZ Tweets" ;;
+         (zetz-run-command "xdg-open https://twitter.com/zetztweets") t])))
+
+(defun zetz-banner-default ()
+  "ZetZ banner."
+  "
+           _
+          | |
+   _______| |_ ____
+  |_  / _ \\ __|_  /
+   / /  __/ |_ / /
+  /___\\___|\\__/___|
+")
+
+(defhydra zetz-hydra-menu
+  (:color blue
+    :hint none)
+  "
+%s(zetz-banner-default)
+  Project     |  _b_: Build     _r_: Run
+  Community   |  _1_: Home      _2_: News
+  _q_: Quit"                            ;
+  ("b" zetz-project-build "Build")
+  ("r" zetz-project-run "Run")
+  ("1" (v-run-command "xdg-open https://github.com/zetzit/zz") "Home")
+  ("2" (v-run-command "xdg-open https://twitter.com/zetztweets") "News")
+  ("q" nil "Quit"))
+
+(defun zetz-menu ()
+  "Open v hydra menu."
+  (interactive)
+  (zetz-hydra-menu/body))
+
+(defun zetz-folding-hide-element
+  (&optional
+    RETRY)
+  "Hide current element.
+Optional argument RETRY."
+  (interactive)
+  (let* ((region (yafolding-get-element-region))
+          (beg (car region))
+          (end (cadr region)))
+    (if (and (eq RETRY nil)
+          (= beg end))
+      (progn (yafolding-go-parent-element)
+        (yafolding-hide-element 1))
+      (yafolding-hide-region beg end))))
+
+(defun zetz-build-tags ()
+  "Build tags for current project."
+  (interactive)
+  (let ((tags-buffer (get-buffer "TAGS"))
+         (tags-buffer2 (get-buffer (format "TAGS<%s>" (zetz-project-name)))))
+    (if tags-buffer (kill-buffer tags-buffer))
+    (if tags-buffer2 (kill-buffer tags-buffer2)))
+  (let* ((zetz-path (string-trim (shell-command-to-string "which zz")))
+          (zetz-executable (string-trim (shell-command-to-string (concat "readlink -f "
+                                                                   zetz-path))))
+          (packages-path (expand-file-name (concat (file-name-directory zetz-executable)
+                                             "../modules")))
+          (ctags-params                 ;
+            (concat  "ctags " "-e -R . " packages-path)))
+    (if (file-exists-p packages-path)
+      (progn
+        (setq default-directory (zetz-project-root))
+        (shell-command ctags-params)
+        (zetz-load-tags)))))
+
+(defun zetz-load-tags
+  (&optional
+    BUILD)
+  "Visit tags table.
+Optional argument BUILD If the tags file does not exist, execute the build."
+  (interactive)
+  (let* ((tags-file (concat (zetz-project-root) "TAGS")))
+    (if (file-exists-p tags-file)
+      (progn (visit-tags-table (concat (zetz-project-root) "TAGS")))
+      (if BUILD (zetz-build-tags)))))
+
+(defun zetz-after-save-hook ()
+  "After save hook."
+  (shell-command (concat  "zz fmt " (buffer-file-name)))
+  (revert-buffer
+    :ignore-auto
+    :noconfirm)
+  (if (not (executable-find "ctags"))
+    (message "Could not locate executable '%s'" "ctags")
+    (zetz-build-tags)))
+
 (defalias 'zetz-parent-mode             ;
   (if (fboundp 'prog-mode) 'prog-mode 'fundamental-mode))
 
@@ -298,10 +468,12 @@ Optional argument COUNT ."
   (setq-local indent-tabs-mode nil)
   (setq-local tab-width 4)
   (setq-local buffer-file-coding-system 'utf-8-unix)
+  ;;
   (setq-local parse-sexp-ignore-comments t)
   (setq-local comment-start "/*")
   (setq-local comment-start "*/")
   (setq-local comment-start-skip "\\(//+\\|/\\*+\\)\\s *")
+  ;;
   (setq-local electric-indent-chars (append "{}():;," electric-indent-chars))
   (setq-local beginning-of-defun-function 'zetz-beginning-of-defun)
   (setq-local end-of-defun-function 'zetz-end-of-defun)
@@ -313,14 +485,57 @@ Optional argument COUNT ."
   ;; (font-lock-syntactic-face-function . zetz-mode-syntactic-face-function)))
   (setq-local font-lock-defaults '(zetz-font-lock-keywords))
   (font-lock-fontify-buffer)
-
+  ;;
   ;; (setq-local syntax-propertize-function zetz-syntax-propertize-function)
   ;;
-  )
+  (hl-todo-mode)
+  (setq-local hl-todo-keyword-faces ;;
+    '(("TODO" . "green")
+       ("FIXME" . "yellow")
+       ("DEBUG" . "DarkCyan")
+       ("GOTCHA" . "red")
+       ("STUB" . "DarkGreen")))
+  (whitespace-mode)
+  (setq-local whitespace-style ;;
+    '(face spaces tabs newline space-mark tab-mark newline-mark trailing))
+  ;; Make whitespace-mode and whitespace-newline-mode use “¶” for end of line char and “▷” for tab.
+  (setq-local whitespace-display-mappings
+    ;; all numbers are unicode codepoint in decimal. e.g. (insert-char 182 1)
+    '((space-mark 32 [183]
+        [46]) ;; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
+       (newline-mark 10 [182 10]) ;; LINE FEED,
+       (tab-mark 9 [9655 9]
+         [92 9])))
+
+  ;; (setq-local whitespace-style '(face trailing))
+  (setq-local fci-rule-column 80)
+  (setq-local fci-handle-truncate-lines nil)
+  (setq-local fci-rule-width 1)
+  (setq-local fci-rule-color "grey30")
+  ;;
+  (rainbow-delimiters-mode t)
+  ;;
+  (defalias 'yafolding-hide-element 'v-folding-hide-element)
+  (yafolding-mode t)
+  ;;
+  (setq-local imenu-generic-expression ;;
+    '(("TODO" ".*TODO:[ \t]*\\(.*\\)$" 1)
+       ("fn" "[ \t]*fn[ \t]+\\([a-zA-Z0-9_]+\\)[ \t]*(.*)" 1)
+       ("symbol" "[ \t]*symbol[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
+       ("enum" "[ \t]*enum[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
+       ("const" "[ \t]*const[ \t]+\\(.+\\)" 1)
+       ("closure" "[ \t]*closure[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
+       ("macro" "[ \t]*macro[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
+       ("struct" "[ \t]*struct[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
+       ("trait" "[ \t]*trait[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
+       ("export" "[ \t]*export[ \t]+\\(.*\\)(" 1)
+       ("pub" "[ \t]*pub[ \t]+\\(.*\\)[({]" 1)))
+  (imenu-add-to-menubar "Index"))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.zz\\'" . zetz-mode))
 
 ;;
 (provide 'zetz-mode)
+
 ;;; zetz-mode.el ends here
