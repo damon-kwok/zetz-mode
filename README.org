@@ -14,11 +14,17 @@ An Emacs major mode for the [[https://github.com/zetzit/zz/blob/master/README.md
 *** DOING Features
 - [X] Syntax highlighting (font-lock)
 - [X] Indentation
-- [ ] ~imenu~
-- [ ] Code folding
-- [ ] Code jump (using ~ctags~)
-- [ ] Build command integration
+- [X] ~imenu~
+- [X] ~TODO~ highlighting
+- [X] Rainbow delimiters
+- [X] Whitespace character dsiplay
+- [X] Fill column indicator
+- [X] Code folding
+- [X] Workspaces
+- [X] ~ZetZ~ mode menu
 - [ ] Auto format on save
+- [X] Build command integration
+- [ ] Go to definition (using ctags)
 - [ ] ~Keywords~ and ~Methods name~ autocomplete (using ~company-mode~)
 
 *** Installation
