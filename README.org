@@ -11,6 +11,9 @@
 
 An Emacs major mode for the [[https://github.com/zetzit/zz/blob/master/README.md][ZetZ]] programming language.
 
+- Screenshot
+[[https://github.com/damon-kwok/zetz-mode][file:screenshot.png]]
+
 *** DOING Features
 - [X] Syntax highlighting (font-lock)
 - [X] Indentation
