@@ -528,6 +528,7 @@ Optional argument BUILD If the tags file does not exist, execute the build."
        ("macro" "[ \t]*macro[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
        ("struct" "[ \t]*struct[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
        ("trait" "[ \t]*trait[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
+       ("test" "[ \t]*test[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
        ("export" "[ \t]*export[ \t]+\\(.*\\)(" 1)
        ("pub" "[ \t]*pub[ \t]+\\(.*\\)[({]" 1)))
   (imenu-add-to-menubar "Index"))
