@@ -1,4 +1,3 @@
-;; -*- lexical-binding: t -*-
 ;;; zetz-mode.el --- A major mode for the ZetZ programming language
 ;;
 ;; Authors: Damon Kwok <damon-kwok@outlook.com>
@@ -26,8 +25,8 @@
 ;;
 ;;   M-x package-install zetz-mode
 ;;
-;; Or, copy zetz-mode.el to some location in your emacs load
-;; path. Then add "(require 'zetz-mode)" to your emacs initialization
+;; Or, copy zetz-mode.el to some location in your Emacs load
+;; path.  Then add "(require 'zetz-mode)" to your Emacs initialization
 ;; (.emacs, init.el, or something).
 ;;
 ;; Example config:
@@ -108,7 +107,7 @@
     (define-key map "\C-j" 'newline-and-indent)
     ;; (define-key map (kbd "<C-return>") 'yafolding-toggle-element) ;
     map)
-  "Keymap for ZetZ major mode")
+  "Keymap for ZetZ major mode.")
 
 (defconst zetz-keywords
   '("if" "else" "switch" "case" "while" "for" "do" ;
@@ -258,8 +257,9 @@
 
 (defun zetz-beginning-of-defun
   (&optional
-    count)
-  "Go to line on which current function starts."
+    COUNT)
+  "Go to line on which current function start.
+Optional argument COUNT ."
   (interactive)
   (let ((orig-level (odin-paren-level)))
     (while (and (not (odin-line-is-defun))
