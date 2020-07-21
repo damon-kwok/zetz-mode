@@ -43,8 +43,8 @@ it's too simple to need any).
 
 #+BEGIN_SRC elisp
 (require 'zetz-mode)
-(define-key ponylang-mode-map (kbd "M-z") 'zetz-menu)
-(define-key ponylang-mode-map (kbd "<f6>")  'zetz-menu)
+(define-key zetz-mode-map (kbd "M-z") 'zetz-menu)
+(define-key zetz-mode-map (kbd "<f6>")  'zetz-menu)
 #+END_SRC
 
 - using [[https://github.com/jwiegley/use-package][use-package]] and [[https://github.com/raxod502/straight.el][straight.el]]
