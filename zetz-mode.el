@@ -112,26 +112,32 @@
 
 (defconst zetz-keywords
   '("if" "else" "switch" "case" "while" "for" "do" ;
-    "default" "sizeof")
+     "default" "sizeof")
   "ZetZ language keywords.")
 
 (defconst zetz-preprocessor-keywords
-  '("using" "export" "pub"              ;
-     "const" "test" "theory"            ;
-     "assert" "closure")
+  '("using"                             ;
+     "export" "pub"                     ;
+     "inline" "packed")
   "ZetZ declaration keywords.")
 
 (defconst zetz-declaration-keywords
   '("let"                               ;
-     "enum" "struct" "fn" "trait" "symbol")
+     "enum" "struct" "trait"            ;
+     "symbol"                           ;
+     "fn" "macro" "closure")
   "ZetZ declaration keywords.")
 
 (defconst zetz-careful-keywords
-  '("goto" "continue" "break" "return"  ;
-     "mut" "as" "new"                   ;
-     "where"                            ;
-     "model"                            ;
-     "unsafe")
+  '("new"                                       ;
+     "goto" "continue" "break" "return"         ;
+     "mut" "mutable" "unsafe"                   ;
+     "is" "as" "needs"                               ;
+     "test"                                     ;
+     "assert" "assert2" "assert3" "assert4"     ;
+     "static_attest" "static_assert" "nullterm" ;
+     "where" "model" "theory"                   ;
+     "const" "static" "atomic" "thread_local")
   "ZetZ language careful keywords.")
 
 (defconst zetz-builtin-keywords
@@ -144,8 +150,7 @@
   '("false" "true" "self")
   "Common constants.")
 
-(defconst zetz-operator-functions       ;
-  '("len" "safe" "static_attest" "static_assert" "nullterm")
+(defconst zetz-operator-functions '("len" "sizeof" "safe" )
   "ZetZ language operators functions.")
 
 ;;; create the regex string for each class of keywords
@@ -209,11 +214,12 @@
      ;; operator methods
      (,zetz-operator-functions-regexp . font-lock-builtin-face)
 
-     ;; macro
-     ("#\\(?:include\\|if\\|ifdef\\|else\\|elif\\|endif\\)" . 'font-lock-builtin-face)
+     ;; C
+     ;; ("#\\(?:include\\|if\\|def\\|undef\\|else\\|elif\\|endif\\)" . 'font-lock-builtin-face)
+     ("#\\([A-Za-z ]+\\)" . 'font-lock-builtin-face)
 
      ;; method definitions
-     ("\\(?:fn\\)\s+\\($?[a-z_][A-Za-z0-9_]*\\)" 1 'font-lock-function-name-face)
+     ;; ("\\(?:fn\\)\s+\\($?[a-z_][A-Za-z0-9_]*\\)" 1 'font-lock-function-name-face)
 
      ;; type
      ;; ("\\(?:struct\\|trait\\|type\\)\s+\\($?_?[A-Z][A-Za-z0-9_]*\\)" 1 'font-lock-type-face)
@@ -292,7 +298,6 @@
   (setq-local indent-tabs-mode nil)
   (setq-local tab-width 4)
   (setq-local buffer-file-coding-system 'utf-8-unix)
-
   (setq-local parse-sexp-ignore-comments t)
   (setq-local comment-start "/*")
   (setq-local comment-start "*/")
