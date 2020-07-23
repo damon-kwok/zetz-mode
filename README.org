@@ -51,6 +51,8 @@ it's too simple to need any).
 (require 'zetz-mode)
 (define-key zetz-mode-map (kbd "M-z") 'zetz-menu)
 (define-key zetz-mode-map (kbd "<f6>")  'zetz-menu)
+
+(with-eval-after-load 'company (company-ctags-auto-setup))
 #+END_SRC
 
 - using [[https://github.com/jwiegley/use-package][use-package]] and [[https://github.com/raxod502/straight.el][straight.el]]
@@ -67,4 +69,6 @@ it's too simple to need any).
   ("M-z" . zetz-menu)
   ("<f6>" . zetz-menu)
   :mode ("\\.zz\\'" . zetz-mode))
+
+  (with-eval-after-load 'company (company-ctags-auto-setup))
 #+END_SRC
