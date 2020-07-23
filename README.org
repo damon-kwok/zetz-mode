@@ -6,34 +6,36 @@
 #+TODO: TODO DOING DONE
 
 [[https://github.com/damon-kwok/zetz-mode/blob/master/COPYING][https://img.shields.io/github/license/damon-kwok/zetz-mode?logo=gnu&.svg]]
-[[https://melpa.org/#/zetz-mode][file:https://melpa.org/packages/zetz-mode-badge.svg]]
-[[https://stable.melpa.org/#/zetz-mode][file:https://stable.melpa.org/packages/zetz-mode-badge.svg]]
 [[https://www.patreon.com/DamonKwok][https://img.shields.io/badge/Support%20Me-%F0%9F%92%97-ff69b4.svg]]
+# [[https://melpa.org/#/zetz-mode][file:https://melpa.org/packages/zetz-mode-badge.svg]]
+# [[https://stable.melpa.org/#/zetz-mode][file:https://stable.melpa.org/packages/zetz-mode-badge.svg]]
 
 An Emacs major mode for the [[https://github.com/zetzit/zz/blob/master/README.md][ZetZ]] programming language.
 
 - Screenshot
+
 [[https://github.com/damon-kwok/zetz-mode][file:screenshot.png]]
 
 *** DOING Features
+
 - [X] Syntax highlighting (font-lock)
 - [X] Indentation
-- [X] ~imenu~
-- [X] ~TODO~ highlighting
-- [X] Rainbow delimiters
-- [X] Whitespace character dsiplay
-- [X] Fill column indicator
-- [X] Code folding
-- [X] Workspaces
-- [X] ~ZetZ~ mode menu
+- [x] ~TODO~ highlighting
+- [x] Rainbow delimiters
+- [x] Whitespace character dsiplay
+- [x] Fill column indicator
+- [x] ~ZetZ~ menu
+- [x] Workspace support
+- [x] Code folding
+- [x] Compilation integration
+- [x] Code navigation (using ~imenu~)
+- [x] Go to definition (using ~ctags~)
+- [x] Code completion (using ~company-mode~)
 - [ ] Auto format on save
-- [X] Build command integration
-- [ ] Go to definition (using ctags)
-- [ ] ~Keywords~ and ~Methods name~ autocomplete (using ~company-mode~)
 
 *** Installation
 
-- using MELPA
+- +using MELPA+ ([[https://github.com/melpa/melpa/pull/7024][COMING SOON]])
 This package can be obtain from
 [[http://melpa.org/#/zetz-mode][MELPA]] or
 [[http://stable.melpa.org/#/zetz-mode][MELPA Stable]]. The ~master~

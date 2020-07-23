@@ -4,7 +4,7 @@
 ;; Version: 0.0.1
 ;; URL: https://github.com/damon-kwok/zetz-mode
 ;; Keywords: languages programming
-;; Package-Requires: ((dash "2.17.0") (hydra "0.15.0") (hl-todo "3.1.2") (yafolding "0.4.1") (yasnippet "0.14.0") (rainbow-delimiters "2.1.4") (fill-column-indicator "1.90"))
+;; Package-Requires: ((dash "2.17.0") (hydra "0.15.0") (hl-todo "3.1.2") (yafolding "0.4.1") (yasnippet "0.14.0") (company-ctags "0.0.4") (rainbow-delimiters "2.1.4") (fill-column-indicator "1.90"))
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -68,10 +68,14 @@
 (require 'yafolding)
 (require 'yasnippet)
 (require 'whitespace)
+(require 'company-ctags)
 (require 'rainbow-delimiters)
 (require 'fill-column-indicator)
 
 (defvar zetz-mode-hook nil)
+
+(with-eval-after-load 'company (company-ctags-auto-setup))
+
 (defcustom zetz-indent-trigger-commands ;
   '(indent-for-tab-command yas-expand yas/expand)
   "Commands that might trigger a `zetz-indent-line' call."
@@ -121,7 +125,7 @@
 
 (defconst zetz-declaration-keywords
   '("let"                               ;
-     "enum" "struct" "trait"            ;
+     "enum" "struct" "theory"   ;
      "symbol"                           ;
      "fn" "macro" "closure")
   "ZetZ declaration keywords.")
@@ -134,7 +138,7 @@
      "test"                                     ;
      "assert" "assert2" "assert3" "assert4"     ;
      "static_attest" "static_assert" "nullterm" ;
-     "where" "model" "theory"                   ;
+     "where" "model"                            ;
      "const" "static" "atomic" "thread_local")
   "ZetZ language careful keywords.")
 
@@ -427,7 +431,17 @@ Optional argument RETRY."
           (packages-path (expand-file-name (concat (file-name-directory zetz-executable)
                                              "../modules")))
           (ctags-params                 ;
-            (concat  "ctags " "-e -R . " packages-path)))
+            (concat  "ctags --languages=-v --langdef=v --langmap=v:.v "
+              "--regex-v=/[ \\t]*fn[ \\t]+([a-zA-Z0-9_]+)/\\1/f,fn/ "
+              "--regex-v=/[ \\t]*macro[ \\t]+([a-zA-Z0-9_]+)/\\1/m,macro/ "
+              "--regex-v=/[ \\t]*theory[ \\t]+([a-zA-Z0-9_]+)/\\1/h,theory/ "
+              "--regex-v=/[ \\t]*closure[ \\t]+([a-zA-Z0-9_]+)/\\1/l,closure/ "
+              "--regex-v=/[ \\t]*symbol[ \\t]+([a-zA-Z0-9_]+)/\\1/y,symbol/ "
+              "--regex-v=/[ \\t]*struct[ \\t]+([a-zA-Z0-9_]+)/\\1/s,sturct/ "
+              "--regex-v=/[ \\t]*test[ \\t]+([a-zA-Z0-9_]+)/\\1/t,test/ " ;
+              "--regex-v=/[ \\t]*enum[ \\t]+([a-zA-Z0-9_]+)/\\1/e,enum/ "
+              "--regex-v=/[ \\t]*const[ \\t]+([a-zA-Z0-9_]+)[ \\t]+([a-zA-Z0-9_]+)[ \\t]*=/\\2/n,const/ "
+              "-e -R . " packages-path)))
     (if (file-exists-p packages-path)
       (progn
         (setq default-directory (zetz-project-root))
@@ -520,18 +534,21 @@ Optional argument BUILD If the tags file does not exist, execute the build."
   ;;
   (setq-local imenu-generic-expression ;;
     '(("TODO" ".*TODO:[ \t]*\\(.*\\)$" 1)
-       ("fn" "[ \t]*fn[ \t]+\\([a-zA-Z0-9_]+\\)[ \t]*(.*)" 1)
-       ("symbol" "[ \t]*symbol[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
-       ("enum" "[ \t]*enum[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
-       ("const" "[ \t]*const[ \t]+\\(.+\\)" 1)
-       ("closure" "[ \t]*closure[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
+       ("fn" "[ \t]*fn[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
        ("macro" "[ \t]*macro[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
+       ("theory" "[ \t]*theory[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
+       ("closure" "[ \t]*closure[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
+       ("symbol" "[ \t]*symbol[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
        ("struct" "[ \t]*struct[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
-       ("trait" "[ \t]*trait[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
        ("test" "[ \t]*test[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
+       ("enum" "[ \t]*enum[ \t]+\\([a-zA-Z0-9_]+\\)" 1)
+       ("const" "[ \t]*const[ \t]+\\(.+\\)[ \t]*=" 1)
        ("export" "[ \t]*export[ \t]+\\(.*\\)(" 1)
        ("pub" "[ \t]*pub[ \t]+\\(.*\\)[({]" 1)))
-  (imenu-add-to-menubar "Index"))
+  (imenu-add-to-menubar "Index")
+  ;;
+  (add-hook 'after-save-hook 'zetz-after-save-hook nil t)
+  (zetz-load-tags))
 
 ;;;###autoload
 (add-to-list 'auto-mode-alist '("\\.zz\\'" . zetz-mode))
