@@ -4,7 +4,7 @@
 ;; Version: 0.0.1
 ;; URL: https://github.com/damon-kwok/zetz-mode
 ;; Keywords: languages programming
-;; Package-Requires: ((dash "2.17.0") (hydra "0.15.0") (hl-todo "3.1.2") (yafolding "0.4.1") (yasnippet "0.14.0") (company-ctags "0.0.4") (rainbow-delimiters "2.1.4") (fill-column-indicator "1.90"))
+;; Package-Requires: ((emacs "25.1") (dash "2.17.0") (hydra "0.15.0") (hl-todo "3.1.2") (yafolding "0.4.1") (yasnippet "0.14.0") (company-ctags "0.0.4") (rainbow-delimiters "2.1.4") (fill-column-indicator "1.90"))
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -57,7 +57,7 @@
 
 ;;; Code:
 
-(require 'cl)
+(require 'cl-lib)
 (require 'js)
 (require 'dash)
 (require 'xref)
@@ -73,8 +73,6 @@
 (require 'fill-column-indicator)
 
 (defvar zetz-mode-hook nil)
-
-(with-eval-after-load 'company (company-ctags-auto-setup))
 
 (defcustom zetz-indent-trigger-commands ;
   '(indent-for-tab-command yas-expand yas/expand)
@@ -258,36 +256,6 @@
      ("\\([a-z_]+[a-z0-9_']*\\)+" 1 'font-lock-variable-name-face))
   "An alist mapping regexes to font-lock faces.")
 
-(defun zetz-beginning-of-defun
-  (&optional
-    COUNT)
-  "Go to line on which current function start.
-Optional argument COUNT ."
-  (interactive)
-  (let ((orig-level (odin-paren-level)))
-    (while (and (not (odin-line-is-defun))
-             (not (bobp))
-             (> orig-level 0))
-      (setq orig-level (odin-paren-level))
-      (while (>= (odin-paren-level) orig-level)
-        (skip-chars-backward "^{")
-        (backward-char))))
-  (if (odin-line-is-defun)
-    (beginning-of-line)))
-
-(defun zetz-end-of-defun ()
-  "Go to line on which current function ends."
-  (interactive)
-  (let ((orig-level (odin-paren-level)))
-    (when (> orig-level 0)
-      (odin-beginning-of-defun)
-      (end-of-line)
-      (setq orig-level (odin-paren-level))
-      (skip-chars-forward "^}")
-      (while (>= (odin-paren-level) orig-level)
-        (skip-chars-forward "^}")
-        (forward-char)))))
-
 (defun zetz-project-root-p (PATH)
   "Return t if directory `PATH' is the root of the ZetZ project."
   (setq-local files '("zz.toml" "make.bat" "Makefile" ;
@@ -394,8 +362,8 @@ Optional argument PATH: project path."
   _q_: Quit"                            ;
   ("b" zetz-project-build "Build")
   ("r" zetz-project-run "Run")
-  ("1" (v-run-command "xdg-open https://github.com/zetzit/zz") "Home")
-  ("2" (v-run-command "xdg-open https://twitter.com/zetztweets") "News")
+  ("1" (zetz-run-command "xdg-open https://github.com/zetzit/zz") "Home")
+  ("2" (zetz-run-command "xdg-open https://twitter.com/zetztweets") "News")
   ("q" nil "Quit"))
 
 (defun zetz-menu ()
@@ -415,7 +383,7 @@ Optional argument RETRY."
     (if (and (eq RETRY nil)
           (= beg end))
       (progn (yafolding-go-parent-element)
-        (yafolding-hide-element 1))
+        (zetz-folding-hide-element t))
       (yafolding-hide-region beg end))))
 
 (defun zetz-build-tags ()
@@ -491,8 +459,6 @@ Optional argument BUILD If the tags file does not exist, execute the build."
   (setq-local comment-start-skip "\\(//+\\|/\\*+\\)\\s *")
   ;;
   (setq-local electric-indent-chars (append "{}():;," electric-indent-chars))
-  (setq-local beginning-of-defun-function 'zetz-beginning-of-defun)
-  (setq-local end-of-defun-function 'zetz-end-of-defun)
   (setq-local indent-line-function 'js-indent-line)
 
   ;; (setq-local font-lock-defaults        ;
@@ -500,7 +466,7 @@ Optional argument BUILD If the tags file does not exist, execute the build."
   ;; nil nil nil nil         ;
   ;; (font-lock-syntactic-face-function . zetz-mode-syntactic-face-function)))
   (setq-local font-lock-defaults '(zetz-font-lock-keywords))
-  (font-lock-fontify-buffer)
+  (font-lock-ensure)
   ;;
   ;; (setq-local syntax-propertize-function zetz-syntax-propertize-function)
   ;;
@@ -531,7 +497,7 @@ Optional argument BUILD If the tags file does not exist, execute the build."
   ;;
   (rainbow-delimiters-mode t)
   ;;
-  (defalias 'yafolding-hide-element 'v-folding-hide-element)
+  ;; (defalias 'yafolding-hide-element 'v-folding-hide-element)
   (yafolding-mode t)
   ;;
   (setq-local imenu-generic-expression ;;
