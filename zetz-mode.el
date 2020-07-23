@@ -445,7 +445,9 @@ Optional argument RETRY."
     (if (file-exists-p packages-path)
       (progn
         (setq default-directory (zetz-project-root))
-        (shell-command ctags-params)
+        (let (result (shell-command-to-string ctags-params))
+          (if (not (eq "" result))
+            (message "ctags:%s" result)))
         (zetz-load-tags)))))
 
 (defun zetz-load-tags
