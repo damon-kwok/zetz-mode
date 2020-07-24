@@ -258,16 +258,16 @@
 
 (defun zetz-project-root-p (PATH)
   "Return t if directory `PATH' is the root of the ZetZ project."
-  (setq-local files '("zz.toml" "make.bat" "Makefile" ;
+  (let* ((files '("zz.toml" "make.bat" "Makefile" ;
                        "Dockerfile" ".editorconfig" ".gitignore"))
-  (setq-local foundp nil)
-  (while (and files
-           (not foundp))
-    (let* ((filename (car files))
-            (filepath (concat (file-name-as-directory PATH) filename)))
-      (setq-local files (cdr files))
-      (setq-local foundp (file-exists-p filepath))))
-  foundp)
+          (foundp nil))
+    (while (and (> (length files) 0)
+             (not foundp))
+      (let* ((filename (car files))
+              (filepath (concat (file-name-as-directory PATH) filename)))
+        (setq files (cdr files))
+        (setq foundp (file-exists-p filepath)))) ;
+    foundp))
 
 (defun zetz-project-root
   (&optional
