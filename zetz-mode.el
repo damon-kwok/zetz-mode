@@ -445,7 +445,7 @@ Optional argument BUILD If the tags file does not exist, execute the build."
 ;;;###autoload
 (define-derived-mode zetz-mode zetz-parent-mode
   "ZetZ"
-  "Major mode for editing V files."
+  "Major mode for editing ZetZ files."
   :syntax-table zetz-mode-syntax-table
   (setq bidi-paragraph-direction 'left-to-right)
   (setq-local require-final-newline mode-require-final-newline)
