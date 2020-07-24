@@ -367,7 +367,7 @@ Optional argument PATH: project path."
   ("q" nil "Quit"))
 
 (defun zetz-menu ()
-  "Open v hydra menu."
+  "Open ZetZ hydra menu."
   (interactive)
   (zetz-hydra-menu/body))
 
@@ -399,16 +399,16 @@ Optional argument RETRY."
           (packages-path (expand-file-name (concat (file-name-directory zetz-executable)
                                              "../modules")))
           (ctags-params                 ;
-            (concat  "ctags --languages=-v --langdef=v --langmap=v:.v "
-              "--regex-v=/[ \\t]*fn[ \\t]+([a-zA-Z0-9_]+)/\\1/f,fn/ "
-              "--regex-v=/[ \\t]*macro[ \\t]+([a-zA-Z0-9_]+)/\\1/m,macro/ "
-              "--regex-v=/[ \\t]*theory[ \\t]+([a-zA-Z0-9_]+)/\\1/h,theory/ "
-              "--regex-v=/[ \\t]*closure[ \\t]+([a-zA-Z0-9_]+)/\\1/l,closure/ "
-              "--regex-v=/[ \\t]*symbol[ \\t]+([a-zA-Z0-9_]+)/\\1/y,symbol/ "
-              "--regex-v=/[ \\t]*struct[ \\t]+([a-zA-Z0-9_]+)/\\1/s,sturct/ "
-              "--regex-v=/[ \\t]*test[ \\t]+([a-zA-Z0-9_]+)/\\1/t,test/ " ;
-              "--regex-v=/[ \\t]*enum[ \\t]+([a-zA-Z0-9_]+)/\\1/e,enum/ "
-              "--regex-v=/[ \\t]*const[ \\t]+([a-zA-Z0-9_]+)[ \\t]+([a-zA-Z0-9_]+)[ \\t]*=/\\2/n,const/ "
+            (concat  "ctags --languages=-zetz --langdef=zetz --langmap=zetz:.zz "
+              "--regex-zetz=/[ \\t]*fn[ \\t]+([a-zA-Z0-9_]+)/\\1/f,fn/ "
+              "--regex-zetz=/[ \\t]*macro[ \\t]+([a-zA-Z0-9_]+)/\\1/m,macro/ "
+              "--regex-zetz=/[ \\t]*theory[ \\t]+([a-zA-Z0-9_]+)/\\1/h,theory/ "
+              "--regex-zetz=/[ \\t]*closure[ \\t]+([a-zA-Z0-9_]+)/\\1/l,closure/ "
+              "--regex-zetz=/[ \\t]*symbol[ \\t]+([a-zA-Z0-9_]+)/\\1/y,symbol/ "
+              "--regex-zetz=/[ \\t]*struct[ \\t]+([a-zA-Z0-9_]+)/\\1/s,sturct/ "
+              "--regex-zetz=/[ \\t]*test[ \\t]+([a-zA-Z0-9_]+)/\\1/t,test/ " ;
+              "--regex-zetz=/[ \\t]*enum[ \\t]+([a-zA-Z0-9_]+)/\\1/e,enum/ "
+              "--regex-zetz=/[ \\t]*const[ \\t]+([a-zA-Z0-9_]+)[ \\t]+([a-zA-Z0-9_]+)[ \\t]*=/\\2/n,const/ "
               "-e -R . " packages-path)))
     (if (file-exists-p packages-path)
       (progn
