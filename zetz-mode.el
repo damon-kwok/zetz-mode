@@ -497,7 +497,7 @@ Optional argument BUILD If the tags file does not exist, execute the build."
   ;;
   (rainbow-delimiters-mode t)
   ;;
-  ;; (defalias 'yafolding-hide-element 'v-folding-hide-element)
+  ;; (defalias 'yafolding-hide-element 'zetz-folding-hide-element)
   (yafolding-mode t)
   ;;
   (setq-local imenu-generic-expression ;;
