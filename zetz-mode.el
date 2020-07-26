@@ -4,7 +4,7 @@
 ;; Version: 0.0.1
 ;; URL: https://github.com/damon-kwok/zetz-mode
 ;; Keywords: languages programming
-;; Package-Requires: ((emacs "25.1") (dash "2.17.0") (hydra "0.15.0") (hl-todo "3.1.2") (yafolding "0.4.1") (yasnippet "0.14.0") (company-ctags "0.0.4") (rainbow-delimiters "2.1.4") (fill-column-indicator "1.90"))
+;; Package-Requires: ((emacs "25.1") (dash "2.17.0") (hydra "0.15.0") (yasnippet "0.14.0"))
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -64,14 +64,9 @@
 (require 'xref)
 (require 'hydra)
 (require 'imenu)
-(require 'hl-todo)
 (require 'easymenu)
-(require 'yafolding)
 (require 'yasnippet)
 (require 'whitespace)
-(require 'company-ctags)
-(require 'rainbow-delimiters)
-(require 'fill-column-indicator)
 
 (defvar zetz-mode-hook nil)
 
@@ -431,9 +426,7 @@ Optional argument BUILD If the tags file does not exist, execute the build."
 (defun zetz-after-save-hook ()
   "After save hook."
   (shell-command (concat  "zz fmt " (buffer-file-name)))
-  (revert-buffer
-    :ignore-auto
-    :noconfirm)
+  (revert-buffer :ignore-auto :noconfirm)
   (if (not (executable-find "ctags"))
     (message "Could not locate executable '%s'" "ctags")
     (zetz-build-tags)))
@@ -468,35 +461,16 @@ Optional argument BUILD If the tags file does not exist, execute the build."
   ;;
   ;; (setq-local syntax-propertize-function zetz-syntax-propertize-function)
   ;;
-  (hl-todo-mode)
-  (setq-local hl-todo-keyword-faces ;;
-    '(("TODO" . "green")
-       ("FIXME" . "yellow")
-       ("DEBUG" . "DarkCyan")
-       ("GOTCHA" . "red")
-       ("STUB" . "DarkGreen")))
   (whitespace-mode)
   (setq-local whitespace-style ;;
     '(face spaces tabs newline space-mark tab-mark newline-mark trailing))
-  ;; Make whitespace-mode and whitespace-newline-mode use “¶” for end of line char and “▷” for tab.
+  ;; Make whitespace-mode and whitespace-newline-mode
+  ;; use "¶" for end of line char and "▷" for tab.
   (setq-local whitespace-display-mappings
     ;; all numbers are unicode codepoint in decimal. e.g. (insert-char 182 1)
-    '((space-mark 32 [183]
-        [46]) ;; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
+    '((space-mark 32 [183] [46]) ;; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
        (newline-mark 10 [182 10]) ;; LINE FEED,
-       (tab-mark 9 [9655 9]
-         [92 9])))
-
-  ;; (setq-local whitespace-style '(face trailing))
-  (setq-local fci-rule-column 80)
-  (setq-local fci-handle-truncate-lines nil)
-  (setq-local fci-rule-width 1)
-  (setq-local fci-rule-color "grey30")
-  ;;
-  (rainbow-delimiters-mode t)
-  ;;
-  ;; (defalias 'yafolding-hide-element 'zetz-folding-hide-element)
-  (yafolding-mode t)
+       (tab-mark 9 [9655 9] [92 9])))
   ;;
   (setq-local imenu-generic-expression ;;
     '(("TODO" ".*TODO:[ \t]*\\(.*\\)$" 1)
