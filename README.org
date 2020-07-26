@@ -20,18 +20,19 @@ An Emacs major mode for the [[https://github.com/zetzit/zz/blob/master/README.md
 
 - [X] Syntax highlighting (font-lock)
 - [X] Indentation
-- [x] ~TODO~ highlighting
-- [x] Rainbow delimiters
 - [x] Whitespace character dsiplay
-- [x] Fill column indicator
 - [x] ~ZetZ~ menu
 - [x] Workspace support
-- [x] Code folding
 - [x] Compilation integration
 - [x] Code navigation (using ~imenu~)
 - [x] Go to definition (using ~ctags~)
 - [x] Code completion (using ~company-mode~)
 - [ ] Auto format on save
+
+# - [x] ~TODO~ highlighting
+# - [x] Rainbow delimiters
+# - [x] Fill column indicator
+# - [x] Code folding
 
 *** Installation
 
@@ -44,15 +45,50 @@ deployed to ~MELPA Stable~.
 
 *M-x* ~package-install~ *RET* ~zetz-mode~ *RET*
 
-Right now ~zetz-mode~ doesn't take a lot of configuration (i.e.
-it's too simple to need any).
-
+# Right now ~zetz-mode~ doesn't take a lot of configuration (i.e.
+# it's too simple to need any).
 #+BEGIN_SRC elisp
 (require 'zetz-mode)
 (define-key zetz-mode-map (kbd "M-z") 'zetz-menu)
 (define-key zetz-mode-map (kbd "<f6>")  'zetz-menu)
 
-(with-eval-after-load 'company (company-ctags-auto-setup))
+(add-hook 'zetz-mode-hook (lambda ()
+  (require 'whitespace)
+  (whitespace-mode)
+  (setq-local whitespace-style ;;
+    '(face spaces tabs newline space-mark tab-mark newline-mark trailing))
+  ;; Make whitespace-mode and whitespace-newline-mode
+  ;; use "¶" for end of line char and "▷" for tab.
+  (setq-local whitespace-display-mappings
+    ;; all numbers are unicode codepoint in decimal. e.g. (insert-char 182 1)
+    '((space-mark 32 [183] [46])  ;; SPACE 32 「 」, 183 MIDDLE DOT 「·」, 46 FULL STOP 「.」
+       (newline-mark 10 [182 10]) ;; LINE FEED,
+       (tab-mark 9 [9655 9] [92 9])))
+  ;;
+  (require 'yafolding)
+  (defalias 'yafolding-hide-element 'zetz-folding-hide-element)
+  (yafolding-mode t)
+
+  (require 'company-ctags)
+  (with-eval-after-load 'company (company-ctags-auto-setup))
+
+  (require 'rainbow-delimiters)
+  (rainbow-delimiters-mode t)
+
+  (require 'fill-column-indicator)
+  (setq-local fci-rule-column 80)
+  (setq-local fci-handle-truncate-lines nil)
+  (setq-local fci-rule-width 1)
+  (setq-local fci-rule-color "grey30")
+
+  (require 'hl-todo)
+  (hl-todo-mode)
+  (setq-local hl-todo-keyword-faces ;;
+    '(("TODO" . "green")
+      ("FIXME" . "yellow")
+      ("DEBUG" . "DarkCyan")
+      ("GOTCHA" . "red")
+      ("STUB" . "DarkGreen")))))
 #+END_SRC
 
 - using [[https://github.com/jwiegley/use-package][use-package]] and [[https://github.com/raxod502/straight.el][straight.el]]
