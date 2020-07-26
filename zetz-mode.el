@@ -1,4 +1,4 @@
-;;; zetz-mode.el --- A major mode for the ZetZ programming language
+;;; zetz-mode.el --- A major mode for the ZetZ programming language  -*- lexical-binding: t; -*-
 ;;
 ;; Authors: Damon Kwok <damon-kwok@outlook.com>
 ;; Version: 0.0.1
@@ -58,6 +58,7 @@
 ;;; Code:
 
 (require 'cl-lib)
+(require 'subr-x)
 (require 'js)
 (require 'dash)
 (require 'xref)
@@ -256,7 +257,7 @@
      ("\\([a-z_]+[a-z0-9_']*\\)+" 1 'font-lock-variable-name-face))
   "An alist mapping regexes to font-lock faces.")
 
-(defun zetz-project-root-p (PATH)
+(defun zetz-project-root-p (path)
   "Return t if directory `PATH' is the root of the ZetZ project."
   (let* ((files '("zz.toml" "make.bat" "Makefile" ;
                        "Dockerfile" ".editorconfig" ".gitignore"))
@@ -264,19 +265,19 @@
     (while (and (> (length files) 0)
              (not foundp))
       (let* ((filename (car files))
-              (filepath (concat (file-name-as-directory PATH) filename)))
+              (filepath (concat (file-name-as-directory path) filename)))
         (setq files (cdr files))
         (setq foundp (file-exists-p filepath)))) ;
     foundp))
 
 (defun zetz-project-root
   (&optional
-    PATH)
+    path)
   "Return the root of the ZetZ project.
 Optional argument PATH: project path."
   (let* ((bufdir (if buffer-file-name   ;
                    (file-name-directory buffer-file-name) default-directory))
-          (curdir (if PATH (file-name-as-directory PATH) bufdir))
+          (curdir (if path (file-name-as-directory path) bufdir))
           (parent (file-name-directory (directory-file-name curdir))))
     (if (or (not parent)
           (string= parent curdir)
@@ -289,15 +290,15 @@ Optional argument PATH: project path."
   "Return ZetZ project name."
   (file-name-base (directory-file-name (zetz-project-root))))
 
-(defun zetz-project-file-exists-p (FILENAME)
+(defun zetz-project-file-exists-p (filename)
   "Return t if file `FILENAME' exists."
-  (file-exists-p (concat (zetz-project-root) FILENAME)))
+  (file-exists-p (concat (zetz-project-root) filename)))
 
-(defun zetz-run-command (COMMAND &optional PATH)
+(defun zetz-run-command (command &optional path)
   "Return `COMMAND' in the root of the ZetZ project.
 Optional argument PATH: project path."
-  (setq default-directory (if PATH PATH (zetz-project-root PATH)))
-  (compile COMMAND))
+  (setq default-directory (if path path (zetz-project-root path)))
+  (compile command))
 
 (defun zetz-project-build ()
   "Build project with veronac."
@@ -373,14 +374,14 @@ Optional argument PATH: project path."
 
 (defun zetz-folding-hide-element
   (&optional
-    RETRY)
+    retry)
   "Hide current element.
 Optional argument RETRY."
   (interactive)
   (let* ((region (yafolding-get-element-region))
           (beg (car region))
           (end (cadr region)))
-    (if (and (eq RETRY nil)
+    (if (and (not retry)
           (= beg end))
       (progn (yafolding-go-parent-element)
         (zetz-folding-hide-element t))
@@ -413,21 +414,19 @@ Optional argument RETRY."
     (if (file-exists-p packages-path)
       (progn
         (setq default-directory (zetz-project-root))
-        (let (result (shell-command-to-string ctags-params))
-          (if (not (eq "" result))
-            (message "ctags:%s" result)))
+        (message "ctags:%s" (shell-command-to-string ctags-params))
         (zetz-load-tags)))))
 
 (defun zetz-load-tags
   (&optional
-    BUILD)
+    build)
   "Visit tags table.
 Optional argument BUILD If the tags file does not exist, execute the build."
   (interactive)
   (let* ((tags-file (concat (zetz-project-root) "TAGS")))
     (if (file-exists-p tags-file)
       (progn (visit-tags-table (concat (zetz-project-root) "TAGS")))
-      (if BUILD (zetz-build-tags)))))
+      (if build (zetz-build-tags)))))
 
 (defun zetz-after-save-hook ()
   "After save hook."
@@ -443,8 +442,7 @@ Optional argument BUILD If the tags file does not exist, execute the build."
   (if (fboundp 'prog-mode) 'prog-mode 'fundamental-mode))
 
 ;;;###autoload
-(define-derived-mode zetz-mode zetz-parent-mode
-  "ZetZ"
+(define-derived-mode zetz-mode zetz-parent-mode "ZetZ"
   "Major mode for editing ZetZ files."
   :syntax-table zetz-mode-syntax-table
   (setq bidi-paragraph-direction 'left-to-right)
@@ -459,7 +457,7 @@ Optional argument BUILD If the tags file does not exist, execute the build."
   (setq-local comment-start-skip "\\(//+\\|/\\*+\\)\\s *")
   ;;
   (setq-local electric-indent-chars (append "{}():;," electric-indent-chars))
-  (setq-local indent-line-function 'js-indent-line)
+  (setq-local indent-line-function #'js-indent-line)
 
   ;; (setq-local font-lock-defaults        ;
   ;; '(zetz-font-lock-keywords ;
@@ -515,7 +513,7 @@ Optional argument BUILD If the tags file does not exist, execute the build."
        ("pub" "[ \t]*pub[ \t]+\\(.*\\)[({]" 1)))
   (imenu-add-to-menubar "Index")
   ;;
-  (add-hook 'after-save-hook 'zetz-after-save-hook nil t)
+  (add-hook 'after-save-hook #'zetz-after-save-hook nil t)
   (zetz-load-tags))
 
 ;;;###autoload
