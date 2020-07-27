@@ -424,11 +424,12 @@ Optional argument BUILD If the tags file does not exist, execute the build."
 
 (defun zetz-after-save-hook ()
   "After save hook."
-  (shell-command (concat  "zz fmt " (buffer-file-name)))
-  (revert-buffer :ignore-auto :noconfirm)
-  (if (not (executable-find "ctags"))
-    (message "Could not locate executable '%s'" "ctags")
-    (zetz-build-tags)))
+  (when (eq major-mode 'zetz-mode)
+    (shell-command (concat  "zz fmt " (buffer-file-name)))
+    (revert-buffer :ignore-auto :noconfirm)
+    (if (not (executable-find "ctags"))
+      (message "Could not locate executable '%s'" "ctags")
+      (zetz-build-tags))))
 
 (defalias 'zetz-parent-mode             ;
   (if (fboundp 'prog-mode) 'prog-mode 'fundamental-mode))
