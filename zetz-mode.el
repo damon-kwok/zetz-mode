@@ -4,7 +4,7 @@
 ;; Version: 0.0.1
 ;; URL: https://github.com/damon-kwok/zetz-mode
 ;; Keywords: languages programming
-;; Package-Requires: ((emacs "25.1") (dash "2.17.0") (hydra "0.15.0") (yasnippet "0.14.0"))
+;; Package-Requires: ((emacs "25.1") (dash "2.17.0") (hydra "0.15.0"))
 ;;
 ;; This file is not part of GNU Emacs.
 ;;
@@ -65,15 +65,8 @@
 (require 'hydra)
 (require 'imenu)
 (require 'easymenu)
-(require 'yasnippet)
 
 (defvar zetz-mode-hook nil)
-
-(defcustom zetz-indent-trigger-commands ;
-  '(indent-for-tab-command yas-expand yas/expand)
-  "Commands that might trigger a `zetz-indent-line' call."
-  :type '(repeat symbol)
-  :group 'zetz)
 
 (defconst zetz-mode-syntax-table
   (let ((table (make-syntax-table)))
@@ -101,13 +94,12 @@
 
 (defvar zetz-mode-map
   (let ((map (make-keymap)))
-    (define-key map "\C-j" 'newline-and-indent)
-    ;; (define-key map (kbd "<C-return>") 'yafolding-toggle-element) ;
-    map)
+    (define-key map "\C-j" 'newline-and-indent) map)
   "Keymap for ZetZ major mode.")
 
-(defconst zetz-keywords '("if" "else" "switch" "case" "while" "for" "do" ;
-                           "default" "sizeof")
+(defconst zetz-keywords
+  '("if" "else" "switch" "case" "while" "for" "do" ;
+     "default" "sizeof")
   "ZetZ language keywords.")
 
 (defconst zetz-preprocessor-keywords
@@ -118,7 +110,7 @@
 
 (defconst zetz-declaration-keywords
   '("let"                               ;
-     "enum" "struct" "theory"   ;
+     "enum" "struct" "theory"           ;
      "symbol"                           ;
      "fn" "macro" "closure")
   "ZetZ declaration keywords.")
@@ -141,8 +133,7 @@
      "void" "char" "byte")
   "ZetZ language keywords.")
 
-(defconst zetz-constants                ;
-  '("false" "true" "self")
+(defconst zetz-constants '("false" "true" "self")
   "Common constants.")
 
 (defconst zetz-operator-functions '("len" "sizeof" "safe" )
@@ -153,26 +144,24 @@
 (defconst zetz-keywords-regexp (regexp-opt zetz-keywords 'words)
   "Regular expression for matching keywords.")
 
-(defconst zetz-declaration-keywords-regexp ;
+(defconst zetz-declaration-keywords-regexp
   (regexp-opt zetz-declaration-keywords 'words)
   "Regular expression for matching declaration keywords.")
 
-(defconst zetz-preprocessor-keywords-regexp ;
+(defconst zetz-preprocessor-keywords-regexp
   (regexp-opt zetz-preprocessor-keywords 'words)
   "Regular expression for matching preprocessor keywords.")
 
-(defconst zetz-careful-keywords-regexp  ;
-  (regexp-opt zetz-careful-keywords 'words)
+(defconst zetz-careful-keywords-regexp (regexp-opt zetz-careful-keywords 'words)
   "Regular expression for matching careful keywords.")
 
 (defconst zetz-builtin-keywords-regexp (regexp-opt zetz-builtin-keywords 'words)
   "Regular expression for matching builtin type.")
 
-(defconst zetz-constant-regexp          ;
-  (regexp-opt zetz-constants 'words)
+(defconst zetz-constant-regexp (regexp-opt zetz-constants 'words)
   "Regular expression for matching constants.")
 
-(defconst zetz-operator-functions-regexp ;
+(defconst zetz-operator-functions-regexp
   (regexp-opt zetz-operator-functions 'words)
   "Regular expression for matching operator functions.")
 
@@ -201,7 +190,8 @@
      ("\\($?[?^!&]+\\)" 1 'font-lock-warning-face)
 
      ;; delimiter: = : separate
-     ("[^+-/*//%~^!=<>]\\([=:]\\)[^+-/*//%~^!=<>]" 1 'font-lock-comment-delimiter-face)
+     ("[^+-/*//%~^!=<>]\\([=:]\\)[^+-/*//%~^!=<>]" 1
+       'font-lock-comment-delimiter-face)
 
      ;; delimiter: brackets
      ("\\(\\[\\|\\]\\|[(){}]\\)" 1 'font-lock-comment-delimiter-face)
@@ -231,9 +221,10 @@
      ("\\([a-z_]$?[a-z0-9_]?+\\)$?[ \t]?(+" 1 'font-lock-function-name-face)
 
      ;; parameter
-     ("\\(?:(\\|,\\)\\([a-z_][a-z0-9_']*\\)\\([^ \t\r\n,:)]*\\)" 1 'font-lock-variable-name-face)
-     ("\\(?:(\\|,\\)[ \t]+\\([a-z_][a-z0-9_']*\\)\\([^ \t\r\n,:)]*\\)" 1
-       'font-lock-variable-name-face)
+     ;; ("\\(?:(\\|,\\)\\([a-z_][a-z0-9_']*\\)\\([^ \t\r\n,:)]*\\)" 1
+       ;; 'font-lock-variable-name-face)
+     ;; ("\\(?:(\\|,\\)[ \t]+\\([a-z_][a-z0-9_']*\\)\\([^ \t\r\n,:)]*\\)" 1
+       ;; 'font-lock-variable-name-face)
 
      ;; tuple references
      ("[.]$?[ \t]?\\($?_[1-9]$?[0-9]?*\\)" 1 'font-lock-variable-name-face)
@@ -245,7 +236,8 @@
      ("\\('[\\].'\\)" 1 'font-lock-constant-face)
 
      ;; numeric literals
-     ("[ \t/+-/*//=><([,;]\\([0-9]+[0-9a-zA-Z_]*\\)+" 1 'font-lock-constant-face)
+     ("[ \t/+-/*//=><([,;]\\([0-9]+[0-9a-zA-Z_]*\\)+" 1
+       'font-lock-constant-face)
 
      ;; variable references
      ("\\([a-z_]+[a-z0-9_']*\\)+" 1 'font-lock-variable-name-face))
@@ -254,7 +246,7 @@
 (defun zetz-project-root-p (path)
   "Return t if directory `PATH' is the root of the ZetZ project."
   (let* ((files '("zz.toml" "make.bat" "Makefile" ;
-                       "Dockerfile" ".editorconfig" ".gitignore"))
+                   "Dockerfile" ".editorconfig" ".gitignore"))
           (foundp nil))
     (while (and (> (length files) 0)
              (not foundp))
@@ -309,7 +301,8 @@ Optional argument PATH: project path."
 
 (defun zetz-buffer-dirname ()
   "Return current buffer directory file name."
-  (directory-file-name (if buffer-file-name (file-name-directory buffer-file-name)
+  (directory-file-name (if buffer-file-name (file-name-directory
+                                              buffer-file-name)
                          default-directory)))
 
 (defun zetz-project-run ()
@@ -366,21 +359,6 @@ Optional argument PATH: project path."
   (interactive)
   (zetz-hydra-menu/body))
 
-(defun zetz-folding-hide-element
-  (&optional
-    retry)
-  "Hide current element.
-Optional argument RETRY."
-  (interactive)
-  (let* ((region (yafolding-get-element-region))
-          (beg (car region))
-          (end (cadr region)))
-    (if (and (not retry)
-          (= beg end))
-      (progn (yafolding-go-parent-element)
-        (zetz-folding-hide-element t))
-      (yafolding-hide-region beg end))))
-
 (defun zetz-build-tags ()
   "Build tags for current project."
   (interactive)
@@ -389,12 +367,14 @@ Optional argument RETRY."
     (if tags-buffer (kill-buffer tags-buffer))
     (if tags-buffer2 (kill-buffer tags-buffer2)))
   (let* ((zetz-path (string-trim (shell-command-to-string "which zz")))
-          (zetz-executable (string-trim (shell-command-to-string (concat "readlink -f "
+          (zetz-executable (string-trim (shell-command-to-string (concat
+                                                                   "readlink -f "
                                                                    zetz-path))))
-          (packages-path (expand-file-name (concat (file-name-directory zetz-executable)
+          (packages-path (expand-file-name (concat (file-name-directory
+                                                     zetz-executable)
                                              "../modules")))
           (ctags-params                 ;
-            (concat  "ctags --languages=-zetz --langdef=zetz --langmap=zetz:.zz "
+            (concat "ctags --languages=-zetz --langdef=zetz --langmap=zetz:.zz "
               "--regex-zetz=/[ \\t]*fn[ \\t]+([a-zA-Z0-9_]+)/\\1/f,fn/ "
               "--regex-zetz=/[ \\t]*macro[ \\t]+([a-zA-Z0-9_]+)/\\1/m,macro/ "
               "--regex-zetz=/[ \\t]*theory[ \\t]+([a-zA-Z0-9_]+)/\\1/h,theory/ "
@@ -426,16 +406,16 @@ Optional argument BUILD If the tags file does not exist, execute the build."
   "After save hook."
   (when (eq major-mode 'zetz-mode)
     (shell-command (concat  "zz fmt " (buffer-file-name)))
-    (revert-buffer :ignore-auto :noconfirm)
+    (revert-buffer
+      :ignore-auto
+      :noconfirm)
     (if (not (executable-find "ctags"))
       (message "Could not locate executable '%s'" "ctags")
       (zetz-build-tags))))
 
-(defalias 'zetz-parent-mode             ;
-  (if (fboundp 'prog-mode) 'prog-mode 'fundamental-mode))
-
 ;;;###autoload
-(define-derived-mode zetz-mode zetz-parent-mode "ZetZ"
+(define-derived-mode zetz-mode prog-mode
+  "ZetZ"
   "Major mode for editing ZetZ files."
   :syntax-table zetz-mode-syntax-table
   (setq bidi-paragraph-direction 'left-to-right)
