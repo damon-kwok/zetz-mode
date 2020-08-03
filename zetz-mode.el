@@ -210,6 +210,7 @@
      ;; ("\\(?:struct\\|trait\\|type\\)\s+\\($?_?[A-Z][A-Za-z0-9_]*\\)" 1 'font-lock-type-face)
      ("\\([A-Z][A-Za-z0-9_]*\\)" 1 'font-lock-type-face)
      ("\\([A-Za-z0-9_]*_t\\)" 1 'font-lock-type-face)
+     ("\\([A-Za-z0-9_]*\\)::" 1 'font-lock-type-face)
 
      ;; constants references
      (,zetz-constant-regexp . font-lock-constant-face)
