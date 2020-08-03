@@ -68,19 +68,19 @@ deployed to ~MELPA Stable~.
 #  (require 'yafolding)
 #  (defalias 'yafolding-hide-element 'zetz-folding-hide-element)
 #  (yafolding-mode t)
-#
+#  ;;
 #  (require 'company-ctags)
 #  (with-eval-after-load 'company (company-ctags-auto-setup))
-#
+#  ;;
 #  (require 'rainbow-delimiters)
 #  (rainbow-delimiters-mode t)
-#
+#  ;;
 #  (require 'fill-column-indicator)
 #  (setq-local fci-rule-column 80)
 #  (setq-local fci-handle-truncate-lines nil)
 #  (setq-local fci-rule-width 1)
 #  (setq-local fci-rule-color "grey30")
-#
+#  ;;
 #  (require 'hl-todo)
 #  (hl-todo-mode)
 #  (setq-local hl-todo-keyword-faces ;;
