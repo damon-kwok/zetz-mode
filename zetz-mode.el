@@ -301,10 +301,10 @@ Optional argument PATH: project path."
   (let* ((bin1 (concat (zetz-project-root) "bin/" (zetz-project-name)))
           (bin2 (concat (zetz-project-root) "/" (zetz-project-name)))
           (bin3 (concat (zetz-buffer-dirname) "/" (zetz-project-name))))
-    (cond 
-      ((file-exists-p bin1) (v-run-command bin1))
-      ((file-exists-p bin2) (v-run-command bin2))
-      ((file-exists-p bin2) (v-run-command bin2)))))
+    (cond
+      ((file-exists-p bin1) (zetz-run-command bin1))
+      ((file-exists-p bin2) (zetz-run-command bin2))
+      ((file-exists-p bin2) (zetz-run-command bin3)))))
 
 (easy-menu-define zetz-mode-menu zetz-mode-map ;
   "Menu for ZetZ mode."                        ;
