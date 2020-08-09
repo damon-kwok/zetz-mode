@@ -375,11 +375,10 @@ Optional argument PATH: project path."
               "--regex-zetz=/[ \\t]*enum[ \\t]+([a-zA-Z0-9_]+)/\\1/e,enum/ "
               "--regex-zetz=/[ \\t]*const[ \\t]+([a-zA-Z0-9_]+)[ \\t]+([a-zA-Z0-9_]+)[ \\t]*=/\\2/n,const/ "
               "-e -R . " packages-path)))
-    (if (file-exists-p packages-path)
-      (progn
-        (setq default-directory (zetz-project-root))
-        (message "ctags:%s" (shell-command-to-string ctags-params))
-        (zetz-load-tags)))))
+    (when (file-exists-p packages-path)
+      (setq default-directory (zetz-project-root))
+      (message "ctags:%s" (shell-command-to-string ctags-params))
+      (zetz-load-tags))))
 
 (defun zetz-load-tags
   (&optional
@@ -408,7 +407,7 @@ Optional argument BUILD If the tags file does not exist, execute the build."
   "ZetZ"
   "Major mode for editing ZetZ files."
   :syntax-table zetz-mode-syntax-table
-  (setq bidi-paragraph-direction 'left-to-right)
+  ;; (setq-local bidi-paragraph-direction 'left-to-right)
   (setq-local require-final-newline mode-require-final-newline)
   (setq-local indent-tabs-mode nil)
   (setq-local tab-width 4)
