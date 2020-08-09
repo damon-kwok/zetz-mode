@@ -416,7 +416,7 @@ Optional argument BUILD If the tags file does not exist, execute the build."
   ;;
   (setq-local parse-sexp-ignore-comments t)
   (setq-local comment-start "/*")
-  (setq-local comment-start "*/")
+  (setq-local comment-end "*/")
   (setq-local comment-start-skip "\\(//+\\|/\\*+\\)\\s *")
   ;;
   (setq-local electric-indent-chars (append "{}():;," electric-indent-chars))
