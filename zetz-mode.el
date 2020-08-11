@@ -215,9 +215,9 @@
 
      ;; parameter
      ;; ("\\(?:(\\|,\\)\\([a-z_][a-z0-9_']*\\)\\([^ \t\r\n,:)]*\\)" 1
-       ;; 'font-lock-variable-name-face)
+     ;; 'font-lock-variable-name-face)
      ;; ("\\(?:(\\|,\\)[ \t]+\\([a-z_][a-z0-9_']*\\)\\([^ \t\r\n,:)]*\\)" 1
-       ;; 'font-lock-variable-name-face)
+     ;; 'font-lock-variable-name-face)
 
      ;; tuple references
      ("[.]$?[ \t]?\\($?_[1-9]$?[0-9]?*\\)" 1 'font-lock-variable-name-face)
@@ -301,10 +301,12 @@ Optional argument PATH: project path."
   (let* ((bin1 (concat (zetz-project-root) "bin/" (zetz-project-name)))
           (bin2 (concat (zetz-project-root) "/" (zetz-project-name)))
           (bin3 (concat (zetz-buffer-dirname) "/" (zetz-project-name))))
-    (cond
-      ((file-exists-p bin1) (zetz-run-command bin1))
-      ((file-exists-p bin2) (zetz-run-command bin2))
-      ((file-exists-p bin2) (zetz-run-command bin3)))))
+    (cond ((file-exists-p bin1)
+            (zetz-run-command bin1))
+      ((file-exists-p bin2)
+        (zetz-run-command bin2))
+      ((file-exists-p bin2)
+        (zetz-run-command bin3)))))
 
 (easy-menu-define zetz-mode-menu zetz-mode-map ;
   "Menu for ZetZ mode."                        ;
@@ -407,18 +409,19 @@ Optional argument BUILD If the tags file does not exist, execute the build."
   :syntax-table zetz-mode-syntax-table
   ;; (setq-local bidi-paragraph-direction 'left-to-right)
   (setq-local require-final-newline mode-require-final-newline)
-  (setq-local indent-tabs-mode nil)
-  (setq-local tab-width 4)
-  (setq-local buffer-file-coding-system 'utf-8-unix)
-  ;;
   (setq-local parse-sexp-ignore-comments t)
   (setq-local comment-start "/*")
   (setq-local comment-end "*/")
   (setq-local comment-start-skip "\\(//+\\|/\\*+\\)\\s *")
   ;;
+  (setq-local indent-tabs-mode nil)
+  (setq-local tab-width 4)
+  (setq-local buffer-file-coding-system 'utf-8-unix)
+  ;;
   (setq-local electric-indent-chars (append "{}():;," electric-indent-chars))
   (setq-local indent-line-function #'js-indent-line)
-
+  (setq-local js-indent-level tab-width)
+  ;;
   ;; (setq-local font-lock-defaults        ;
   ;; '(zetz-font-lock-keywords ;
   ;; nil nil nil nil         ;
