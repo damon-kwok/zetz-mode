@@ -273,8 +273,10 @@ Optional argument PATH: project path."
 (defun zetz-run-command (command &optional path)
   "Return `COMMAND' in the root of the ZetZ project.
 Optional argument PATH: project path."
-  (setq default-directory (if path path (zetz-project-root path)))
-  (compile command))
+  (let ((oldir default-directory))
+    (setq default-directory (if path path (zetz-project-root path)))
+    (compile command)
+    (setq default-directory oldir)))
 
 (defun zetz-project-build ()
   "Build project with veronac."
@@ -357,12 +359,12 @@ Optional argument PATH: project path."
     (if tags-buffer (kill-buffer tags-buffer))
     (if tags-buffer2 (kill-buffer tags-buffer2)))
   (let* ((zetz-path (string-trim (shell-command-to-string "which zz")))
-          (zetz-executable (string-trim (shell-command-to-string (concat
-                                                                   "readlink -f "
-                                                                   zetz-path))))
-          (packages-path (expand-file-name (concat (file-name-directory
-                                                     zetz-executable)
-                                             "../modules")))
+          (zetz-executable              ;
+            (string-trim (shell-command-to-string (concat "readlink -f "
+                                                    zetz-path))))
+          (packages-path                ;
+            (expand-file-name (concat (file-name-directory zetz-executable)
+                                "../modules")))
           (ctags-params                 ;
             (concat "ctags --languages=-zetz --langdef=zetz --langmap=zetz:.zz "
               "--regex-zetz=/[ \\t]*fn[ \\t]+([a-zA-Z0-9_]+)/\\1/f,fn/ "
@@ -376,9 +378,11 @@ Optional argument PATH: project path."
               "--regex-zetz=/[ \\t]*const[ \\t]+([a-zA-Z0-9_]+)[ \\t]+([a-zA-Z0-9_]+)[ \\t]*=/\\2/n,const/ "
               "-e -R . " packages-path)))
     (when (file-exists-p packages-path)
-      (setq default-directory (zetz-project-root))
-      (message "ctags:%s" (shell-command-to-string ctags-params))
-      (zetz-load-tags))))
+      (let ((oldir default-directory))
+        (setq default-directory (zetz-project-root))
+        (message "ctags:%s" (shell-command-to-string ctags-params))
+        (zetz-load-tags)
+        (setq default-directory oldir)))))
 
 (defun zetz-load-tags
   (&optional
