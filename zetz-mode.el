@@ -235,8 +235,9 @@
 
 (defun zetz-project-root-p (path)
   "Return t if directory `PATH' is the root of the ZetZ project."
-  (let* ((files '("zz.toml" "make.bat" "Makefile" ;
-                   "Dockerfile" ".editorconfig" ".gitignore"))
+  (let* ((files '("zz.toml" "make.bat" "Makefile"            ;
+                   "Dockerfile" ".editorconfig" ".gitignore" ;
+                   ".git" ".svn" ".hg" ".bzr"))
           (foundp nil))
     (while (and (> (length files) 0)
              (not foundp))
@@ -257,6 +258,7 @@ Optional argument PATH: project path."
           (parent (file-name-directory (directory-file-name curdir))))
     (if (or (not parent)
           (string= parent curdir)
+          (string= parent (file-name-as-directory (getenv "HOME")))
           (string= parent "/")
           (zetz-project-root-p curdir)) ;
       curdir                            ;
